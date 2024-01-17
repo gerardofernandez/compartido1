@@ -1,0 +1,2599 @@
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Solución : Entidad
+    {
+        #region Constructores
+        #endregion
+
+        #region Propiedades
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos 
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Solución;
+
+            #region Identidad
+            this.Identidad.Clave = "Aplimática.Finnerve.Dashboard";
+
+            this.Identidad.Nombre = "Dashboard";
+            #endregion
+        }
+
+        protected override void PreparandoEntidades()
+        {
+            base.PreparandoEntidades();
+
+            #region Fuente
+            this.Entidades.Agregar(new Fuente(this));
+
+            #region Maestro
+            this.Entidades.Agregar(new Maestro(this));
+
+            this.Entidades.Agregar(new Registro(this));
+            #endregion
+            #endregion
+
+            #region Consulta
+            this.Entidades.Agregar(new Consulta(this));
+
+            this.Entidades.Agregar(new Columna(this));
+            #endregion
+
+            #region Reporte
+            this.Entidades.Agregar(new Reporte(this));
+
+            this.Entidades.Agregar(new Filtro(this));
+
+            #region Representación
+            this.Entidades.Agregar(new Representación(this));
+
+            this.Entidades.Agregar(new Agrupación(this));
+
+            this.Entidades.Agregar(new Indicador(this));
+            #endregion
+            #endregion
+
+            #region Tablero
+            this.Entidades.Agregar(new Tablero(this));
+
+            #region Grupo
+            this.Entidades.Agregar(new Grupo(this));
+
+            this.Entidades.Agregar(new Tarjeta(this));
+            #endregion
+            #endregion
+
+            this.Entidades.Agregar(new TableroDeMando(this));
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Fuente(this));
+
+            this.AccesosDirectos.Agregar(new Consulta(this));
+
+            this.AccesosDirectos.Agregar(new Reporte(this));
+
+            this.AccesosDirectos.Agregar(new Tablero(this));
+
+            this.AccesosDirectos.Agregar(new TableroDeMando(this));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Fuentes", TipoAtributo.Carpeta) { Colección = new Fuentes(this) });
+
+            this.Atributos.Add(new Atributo("Consultas", TipoAtributo.Carpeta) { Colección = new Consultas(this) });
+
+            this.Atributos.Add(new Atributo("Reportes", TipoAtributo.Carpeta) { Colección = new Reportes(this) });
+
+            this.Atributos.Add(new Atributo("Tableros", TipoAtributo.Carpeta) { Colección = new Tableros(this) });
+        }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Fuente : Entidad
+    {
+        #region Constructores
+        public Fuente() : base() { }
+
+        public Fuente(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public string CadenaDeConexión { get { return (string)this.Atributos["CadenaDeConexión"].Valor.Actual; } set { this.Atributos["CadenaDeConexión"].Valor.Actual = value; } }
+
+        public Maestros Maestros { get { return (Maestros)this.Atributos["Maestros"].Colección; } set { this.Atributos["Maestros"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Fuente(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Fuente";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Fuentes";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Maestro(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("CadenaDeConexión", TipoAtributo.Edición));
+
+            this.Atributos.Add(new Atributo("Maestros", TipoAtributo.Carpeta) { Colección = new Maestros(this.Solución) });
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Fuentes : Colección
+    {
+        #region Constructores
+        public Fuentes(Entidad Solución) : base(Solución, new Fuente(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Fuente Obtener(string Script) { return (Fuente)this.ObtenerX(Script); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Fuente(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Maestro : Entidad
+    {
+        #region Constructores
+        public Maestro() : base() { }
+
+        public Maestro(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Fuente
+        public Fuentes Fuentes { get { return (Fuentes)this.Atributos["Fuente"].Colección; } set { this.Atributos["Fuente"].Colección = value; } }
+
+        public Fuente Fuente { get { return (Fuente)this.Fuentes.Obtener(); } }
+
+        public string IdFuente { get { return (string)this.Atributos["Fuente"].Valor.Actual; } set { this.Atributos["Fuente"].Valor.Actual = value; } }
+        #endregion
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public Registros Registros { get { return (Registros)this.Atributos["Registros"].Colección; } set { this.Atributos["Registros"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Maestro(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Maestro";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Maestros";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Registro(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Fuente", TipoAtributo.Registro) { Colección = new Fuentes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Registros", TipoAtributo.Carpeta) { Colección = new Registros(this.Solución) });
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Maestros : Colección
+    {
+        #region Constructores
+        public Maestros(Entidad Solución) : base(Solución, new Maestro(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Maestro Obtener(string Clave) { return (Maestro)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Maestro(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Registro : Entidad
+    {
+        #region Constructores
+        public Registro() : base() { }
+
+        public Registro(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Maestro
+        public Maestros Maestros { get { return (Maestros)this.Atributos["Maestro"].Colección; } set { this.Atributos["Maestro"].Colección = value; } }
+
+        public Maestro Maestro { get { return (Maestro)this.Maestros.Obtener(); } }
+
+        public string IdMaestro { get { return (string)this.Atributos["Maestro"].Valor.Actual; } set { this.Atributos["Maestro"].Valor.Actual = value; } }
+        #endregion
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Registro(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Registro";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Registros";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Maestro", TipoAtributo.Registro) { Colección = new Maestros(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Registros : Colección
+    {
+        #region Constructores
+        public Registros(Entidad Solución) : base(Solución, new Registro(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Registro Obtener(string Clave) { return (Registro)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Registro(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Consulta : Entidad
+    {
+        #region Constructores
+        public Consulta() : base() { }
+
+        public Consulta(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        #region Fuente
+        public Fuentes Fuentes { get { return (Fuentes)this.Atributos["Fuente"].Colección; } set { this.Atributos["Fuente"].Colección = value; } }
+
+        public Fuente Fuente { get { return (Fuente)this.Fuentes.Obtener(); } }
+
+        public string IdFuente { get { return (string)this.Atributos["Fuente"].Valor.Actual; } set { this.Atributos["Fuente"].Valor.Actual = value; } }
+        #endregion
+
+        public string Script { get { return (string)this.Atributos["Script"].Valor.Actual; } set { this.Atributos["Script"].Valor.Actual = value; } }
+
+        public Columnas Columnas { get { return (Columnas)this.Atributos["Columnas"].Colección; } set { this.Atributos["Columnas"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        public void SincronizarColumnas()
+        {
+            this.AccesoDatos.EjecutarComando(this.Solución, "DELETE Columnas WHERE Consulta = '" + this.Registro.Id + "'");
+
+            this.Columnas.Cargar(TipoEstructura.Valores);
+
+            Colección _Colección = new Colección(this.Solución, this.Fuente.CadenaDeConexión);
+
+            _Colección.CargarDataTable(this.Script);
+
+            #region Columns
+            foreach (System.Data.DataColumn _DataColumn in _Colección.DataTable.Columns)
+            {
+                bool _Existe = false;
+
+                foreach (Columna _Columna in this.Columnas)
+                {
+                    if (_Columna.Nombre == _DataColumn.ColumnName)
+                    {
+                        _Existe = true;
+
+                        break;
+                    }
+                }
+
+                if (!_Existe)
+                {
+                    Columna _Columna = (Columna)this.Columnas.ObtenerNuevoEntidad(TipoEstructura.Valores, this);
+
+                    _Columna.IdConsulta = this.Registro.Id;
+
+                    _Columna.Clave = _DataColumn.ColumnName;
+
+                    _Columna.Nombre = _DataColumn.ColumnName;
+
+                    if (_DataColumn.DataType == System.Type.GetType("System.Decimal"))
+                        _Columna.TipoDeColumna = TipoDeColumna.Importe;
+
+                    if (_DataColumn.DataType == System.Type.GetType("System.Int32"))
+                        _Columna.TipoDeColumna = TipoDeColumna.Entero;
+
+                    if (_DataColumn.DataType == System.Type.GetType("System.DateTime"))
+                        _Columna.TipoDeColumna = TipoDeColumna.Fecha;
+
+                    if (_DataColumn.DataType == System.Type.GetType("System.String"))
+                        _Columna.TipoDeColumna = TipoDeColumna.Texto;
+
+                    _Columna.IdMaestro = "-1";
+
+                    _Columna.Guardar(GuardarCerrar.Sí);
+                }
+            }
+            #endregion
+
+            _Colección.Limpiar();
+        }
+
+        public void SincronizarMaestros()
+        {
+            Columnas _Columnas = new Columnas(this.Solución);
+
+            _Columnas.TextoComando.Externo = "SELECT * FROM Columnas WHERE Consulta = '" + this.Registro.Id + "' AND TipoDeColumna = " + TipoDeColumna.Maestro.GetHashCode().ToString();
+
+            _Columnas.Cargar(TipoEstructura.Valores);
+
+            foreach (Columna _Columna in _Columnas)
+            {
+                Colección _Colección = new Colección(this.Solución, this.Fuente.CadenaDeConexión);
+
+                _Colección.CargarDataTable("SELECT " + _Columna.Nombre + " FROM (" + this.Script + ") AS A GROUP BY " + _Columna.Nombre);
+
+                foreach (System.Data.DataRow _DataRow in _Colección.DataTable.Rows)
+                {
+                    Registros _Registros = new Registros(this.Solución);
+
+                    _Registros.TextoComando.Externo = "SELECT * FROM Registros WHERE Maestro = '" + _Columna.IdMaestro + "' AND Nombre = '" + _DataRow[_Columna.Nombre].ToString() + "'";
+
+                    _Registros.Cargar(TipoEstructura.Básico);
+
+                    if (_Registros.Count == 0)
+                    {
+                        Registro _Registro = (Registro)_Columna.Maestro.Registros.ObtenerNuevoEntidad(TipoEstructura.Valores, _Columna.Maestro);
+
+                        _Registro.IdMaestro = _Columna.IdMaestro;
+
+                        _Registro.Nombre = _DataRow[_Columna.Nombre].ToString();
+
+                        _Registro.Guardar(GuardarCerrar.Sí);
+                    }
+                }
+            }
+
+            _Columnas.Limpiar();
+        }
+
+        public void ActualizarReportes()
+        {
+            Reportes _Reportes = new Reportes(this.Solución);
+
+            _Reportes.TextoComando.Externo = "SELECT * FROM Reportes WHERE Consulta = '" + this.Registro.Id + "'";
+
+            _Reportes.Cargar(TipoEstructura.Valores);
+
+            foreach (Reporte _Reporte in _Reportes)
+            {
+                _Reporte.ActualizarScript();
+            }
+        }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Consulta(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Consulta";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Consultas";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Columna(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Fuente", TipoAtributo.Registro) { Colección = new Fuentes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Script", TipoAtributo.Edición));
+
+            #region Comandos
+            this.Atributos.Add(new Atributo("Comandos", TipoAtributo.Grupo));
+
+            this.Atributos.Add(new Atributo("SincronizarColumnas", TipoAtributo.Comando));
+
+            this.Atributos.Add(new Atributo("SincronizarMaestros", TipoAtributo.Comando));
+
+            this.Atributos.Add(new Atributo("ActualizarReportes", TipoAtributo.Comando));
+            #endregion
+
+            #region Carpetas
+            this.Atributos.Add(new Atributo("Carpetas", TipoAtributo.Grupo));
+
+            this.Atributos.Add(new Atributo("Columnas", TipoAtributo.Carpeta) { Colección = new Columnas(this.Solución) });
+            #endregion
+        }
+
+        #region EjecutandoComando
+        private void EjecutarComandoSincronizarColumnas()
+        {
+            this.SincronizarColumnas();
+        }
+
+        private void EjecutarComandoSincronizarMaestros()
+        {
+            this.SincronizarMaestros();
+        }
+
+        private void EjecutarComandoActualizarReportes()
+        {
+            this.ActualizarReportes();
+        }
+
+        protected override void EjecutandoComando(Atributo Comando)
+        {
+            base.EjecutandoComando(Comando);
+
+            if (Comando.Identidad.Clave == "SincronizarColumnas")
+                this.EjecutarComandoSincronizarColumnas();
+
+            if (Comando.Identidad.Clave == "SincronizarMaestros")
+                this.EjecutarComandoSincronizarMaestros();
+
+            if (Comando.Identidad.Clave == "ActualizarReportes")
+                this.EjecutarComandoActualizarReportes();
+        }
+        #endregion
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Consultas : Colección
+    {
+        #region Constructores
+        public Consultas(Entidad Solución) : base(Solución, new Consulta(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Consulta Obtener(string Script) { return (Consulta)this.ObtenerX(Script); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Consulta(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public enum TipoDeColumna { Ninguno, Importe, Entero, Fecha, Maestro, Texto }
+
+    public class Columna : Entidad
+    {
+        #region Constructores
+        public Columna() : base() { }
+
+        public Columna(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Consulta
+        public Consultas Consultas { get { return (Consultas)this.Atributos["Consulta"].Colección; } set { this.Atributos["Consulta"].Colección = value; } }
+
+        public Consulta Consulta { get { return (Consulta)this.Consultas.Obtener(); } }
+
+        public string IdConsulta { get { return (string)this.Atributos["Consulta"].Valor.Actual; } set { this.Atributos["Consulta"].Valor.Actual = value; } }
+        #endregion
+
+        public string Clave { get { return (string)this.Atributos["Clave"].Valor.Actual; } set { this.Atributos["Clave"].Valor.Actual = value; } }
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public TipoDeColumna TipoDeColumna { get { return (TipoDeColumna)this.Atributos["TipoDeColumna"].Valor.Actual; } set { this.Atributos["TipoDeColumna"].Valor.Actual = (int)value; } }
+
+        #region Maestro
+        public Maestros Maestros { get { return (Maestros)this.Atributos["Maestro"].Colección; } set { this.Atributos["Maestro"].Colección = value; } }
+
+        public Maestro Maestro { get { return (Maestro)this.Maestros.Obtener(); } }
+
+        public string IdMaestro { get { return (string)this.Atributos["Maestro"].Valor.Actual; } set { this.Atributos["Maestro"].Valor.Actual = value; } }
+        #endregion
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Columna(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Columna";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Columnas";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Consulta", TipoAtributo.Registro) { Colección = new Consultas(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Clave", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("TipoDeColumna", TipoAtributo.Enumeración));
+
+            this.Atributos.Add(new Atributo("Maestro", TipoAtributo.Registro) { Colección = new Maestros(this.Solución) { Ninguno = true }, Dependencia = "TipoDeColumna" });
+
+            //this.Atributos.Add(new Atributo("Enlace", TipoAtributo.Grupo));
+        }
+
+        protected override void PreparandoLiterales(Atributo Atributo)
+        {
+            base.PreparandoLiterales(Atributo);
+
+            if (Atributo.Identidad.Clave == "TipoDeColumna")
+            {
+                Atributo.Literales.Add(new Elemento(TipoDeColumna.Importe.GetHashCode().ToString(), TipoDeColumna.Importe.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeColumna.Entero.GetHashCode().ToString(), TipoDeColumna.Entero.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeColumna.Fecha.GetHashCode().ToString(), TipoDeColumna.Fecha.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeColumna.Maestro.GetHashCode().ToString(), TipoDeColumna.Maestro.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeColumna.Texto.GetHashCode().ToString(), TipoDeColumna.Texto.ToString()));
+            }
+        }
+
+        #region RestringiendoAtributo
+        private void RestringirAtributoMaestro(Atributo Atributo)
+        {
+            if (this.TipoDeColumna == TipoDeColumna.Maestro)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "Maestro")
+                this.RestringirAtributoMaestro(Atributo);
+        }
+        #endregion
+        #endregion
+    }
+
+    public class Columnas : Colección
+    {
+        #region Constructores
+        public Columnas(Entidad Solución) : base(Solución, new Columna(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Columna Obtener(string Clave) { return (Columna)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Columna(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Reporte : Entidad
+    {
+        #region Constructores
+        public Reporte() : base() { }
+
+        public Reporte(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        #region Fuente
+        public Fuentes Fuentes { get { return (Fuentes)this.Atributos["Fuente"].Colección; } set { this.Atributos["Fuente"].Colección = value; } }
+
+        public Fuente Fuente { get { return (Fuente)this.Fuentes.Obtener(); } }
+
+        public string IdFuente { get { return (string)this.Atributos["Fuente"].Valor.Actual; } set { this.Atributos["Fuente"].Valor.Actual = value; } }
+        #endregion
+
+        #region Consulta
+        public Consultas Consultas { get { return (Consultas)this.Atributos["Consulta"].Colección; } set { this.Atributos["Consulta"].Colección = value; } }
+
+        public Consulta Consulta { get { return (Consulta)this.Consultas.Obtener(); } }
+
+        public string IdConsulta { get { return (string)this.Atributos["Consulta"].Valor.Actual; } set { this.Atributos["Consulta"].Valor.Actual = value; } }
+        #endregion
+
+        public string Script { get { return (string)this.Atributos["Script"].Valor.Actual; } set { this.Atributos["Script"].Valor.Actual = value; } }
+
+        public Filtros Filtros { get { return (Filtros)this.Atributos["Filtros"].Colección; } set { this.Atributos["Filtros"].Colección = value; } }
+
+        public Colección Resultados { get { return (Colección)this.Atributos["Resultados"].Colección; } set { this.Atributos["Resultados"].Colección = value; } }
+
+        public Representaciones Representaciones { get { return (Representaciones)this.Atributos["Representaciones"].Colección; } set { this.Atributos["Representaciones"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        private void ActualizarRepresentaciones()
+        {
+            this.Representaciones.Cargar(TipoEstructura.Valores);
+
+            foreach (Representación _Representación in this.Representaciones)
+                _Representación.ActualizarScript();
+        }
+
+        public void ActualizarScript()
+        {
+            bool _Abierto = this.Abrir(TipoEstructura.Valores);
+
+            this.RestringirScript();
+
+            this.Guardar(GuardarCerrar.Sí, _Abierto);
+
+            this.ActualizarRepresentaciones();
+        }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Reporte(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Reporte";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Reportes";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Filtro(this.Solución));
+
+            this.AccesosDirectos.Agregar(new Representación(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Fuente", TipoAtributo.Registro) { Colección = new Fuentes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Consulta", TipoAtributo.Registro) { Colección = new Consultas(this.Solución), Dependencia = "Fuente" });
+
+            this.Atributos.Add(new Atributo("Script", TipoAtributo.Edición) { Dependencia = "Consulta" });
+
+            #region Carpetas
+            this.Atributos.Add(new Atributo("Carpetas", TipoAtributo.Grupo));
+
+            this.Atributos.Add(new Atributo("Filtros", TipoAtributo.Carpeta) { Colección = new Filtros(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Resultados", TipoAtributo.Carpeta) { Colección = new Colección(this.Solución) { TipoColección = TipoColección.DataTable } });
+
+            this.Atributos.Add(new Atributo("Representaciones", TipoAtributo.Carpeta) { Colección = new Representaciones(this.Solución) });
+            #endregion
+        }
+
+        protected override void Abierto()
+        {
+            this.Atributos["Resultados"].Colección.CadenaDeConexión = this.Consulta.Fuente.CadenaDeConexión;
+
+            base.Abierto();
+        }
+
+        protected override void ColecciónPreparada(Atributo Atributo)
+        {
+            //if (Atributo.Identidad.Clave == "Resultados")
+            //    Atributo.Colección.CadenaDeConexión = this.Consulta.Fuente.CadenaDeConexión;
+
+            base.ColecciónPreparada(Atributo);
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarResultados()
+        {
+            this.Resultados.TextoComando.Fuente = this.Script;
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Resultados")
+                this.SeleccionarResultados();
+        }
+        #endregion
+
+        private void RestringirScript()
+        {
+            this.Script = string.Empty;
+
+            this.Filtros.Cargar(TipoEstructura.Valores);
+
+            string _IdColumna = null;
+
+            foreach (Filtro _Filtro in this.Filtros)
+            {
+                if (this.Script != string.Empty)
+                {
+                    if (_Filtro.IdColumna == _IdColumna)
+                        this.Script += " OR ";
+
+                    else this.Script += " AND ";
+                }
+
+                this.Script += _Filtro.Script;
+
+                _IdColumna = _Filtro.IdColumna;
+            }
+
+            if (this.Script == string.Empty)
+                this.Script = this.Consulta.Script;
+
+            else this.Script = "SELECT * FROM (" + this.Consulta.Script + ") AS A WHERE " + this.Script;
+
+            this.ActualizarRepresentaciones();
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "Script")
+                this.RestringirScript();
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Reportes : Colección
+    {
+        #region Constructores
+        public Reportes(Entidad Solución) : base(Solución, new Reporte(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Reporte Obtener(string Script) { return (Reporte)this.ObtenerX(Script); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Reporte(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public enum OperadorMatemático { Ninguno, Igual, Diferente, Mayor, Menor, MayorIgual, MenorIgual }
+
+    public class Filtro : Entidad
+    {
+        #region Constructores
+        public Filtro() : base() { }
+
+        public Filtro(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Reporte
+        public Reportes Reportes { get { return (Reportes)this.Atributos["Reporte"].Colección; } set { this.Atributos["Reporte"].Colección = value; } }
+
+        public Reporte Reporte { get { return (Reporte)this.Reportes.Obtener(); } }
+
+        public string IdReporte { get { return (string)this.Atributos["Reporte"].Valor.Actual; } set { this.Atributos["Reporte"].Valor.Actual = value; } }
+        #endregion
+
+        #region Columna
+        public Columnas Columnas { get { return (Columnas)this.Atributos["Columna"].Colección; } set { this.Atributos["Columna"].Colección = value; } }
+
+        public Columna Columna { get { return (Columna)this.Columnas.Obtener(); } }
+
+        public string IdColumna { get { return (string)this.Atributos["Columna"].Valor.Actual; } set { this.Atributos["Columna"].Valor.Actual = value; } }
+        #endregion
+
+        public OperadorMatemático OperadorMatemático { get { return (OperadorMatemático)this.Atributos["OperadorMatemático"].Valor.Actual; } set { this.Atributos["OperadorMatemático"].Valor.Actual = (int)value; } }
+
+        public Valor Valor = new Valor();
+
+        public string Script { get { return (string)this.Atributos["Script"].Valor.Actual; } set { this.Atributos["Script"].Valor.Actual = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Filtro(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Filtro";
+        }
+
+        protected override void PreparandoExtensiones()
+        {
+            base.PreparandoExtensiones();
+
+            this.Extensiones.Agregar(this.Valor);
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Filtros";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            //this.Registro.Título = "Que " + this.Columna.Registro.Título + " sea " + this.OperadorMatemático.ToString().ToLower() + " a " + this.Valor.ObtenerValorString;
+            this.Registro.Título = this.Script.Replace("'", "''");
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Reporte", TipoAtributo.Registro) { Colección = new Reportes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Columna", TipoAtributo.Registro) { Colección = new Columnas(this.Solución) });
+
+            this.Atributos.Add(new Atributo("OperadorMatemático", TipoAtributo.Enumeración));
+
+            this.Valor.PrepararAtributos();
+
+            this.Atributos.Add(new Atributo("Script", TipoAtributo.Edición) { Dependencia = "Columna;OperadorMatemático;Entero;Fecha;Importe;Texto;Registro" });
+        }
+
+        protected override void PreparandoLiterales(Atributo Atributo)
+        {
+            base.PreparandoLiterales(Atributo);
+
+            if (Atributo.Identidad.Clave == "OperadorMatemático")
+            {
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.Igual.GetHashCode().ToString(), OperadorMatemático.Igual.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.Diferente.GetHashCode().ToString(), OperadorMatemático.Diferente.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.Mayor.GetHashCode().ToString(), OperadorMatemático.Mayor.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.Menor.GetHashCode().ToString(), OperadorMatemático.Menor.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.MayorIgual.GetHashCode().ToString(), OperadorMatemático.MayorIgual.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OperadorMatemático.MenorIgual.GetHashCode().ToString(), OperadorMatemático.MenorIgual.ToString()));
+            }
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarColumnas()
+        {
+            this.Columnas.TextoComando.Fuente = "SELECT * FROM Columnas WHERE Consulta = '" + this.Reporte.IdConsulta + "'";
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Columna")
+                this.SeleccionarColumnas();
+        }
+        #endregion
+
+        #region RestringiendoAtributo
+        private void RestringirAtributoScript(Atributo Atributo)
+        {
+            this.Script = this.Columna.Nombre + " " + (this.OperadorMatemático == OperadorMatemático.Igual ? "=" : (this.OperadorMatemático == OperadorMatemático.Diferente ? "<>" : (this.OperadorMatemático == OperadorMatemático.Mayor ? ">" : (this.OperadorMatemático == OperadorMatemático.Menor ? "<" : (this.OperadorMatemático == OperadorMatemático.MayorIgual ? ">=" : (this.OperadorMatemático == OperadorMatemático.MenorIgual ? "<=" : string.Empty)))))) + " " + this.Valor.Script;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "Script")
+                this.RestringirAtributoScript(Atributo);
+        }
+        #endregion
+
+        protected override void Abierto()
+        {
+            this.Reporte.Consulta.SincronizarMaestros();
+
+            base.Abierto();
+        }
+
+        protected override void Cambiado(AcciónDeCambio AcciónDeCambio)
+        {
+            this.Reporte.ActualizarScript();
+
+            base.Cambiado(AcciónDeCambio);
+        }
+        #endregion
+    }
+
+    public class Filtros : Colección
+    {
+        #region Constructores
+        public Filtros(Entidad Solución) : base(Solución, new Filtro(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Filtro Obtener(string Clave) { return (Filtro)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Filtro(this.Solución); }
+        #endregion
+    }
+}
+
+using System;
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Valor : Extensión
+    {
+        #region Constructores
+        #endregion
+
+        #region Propiedades
+        public new TipoAtributo TipoAtributo = TipoAtributo.Ninguno;
+
+        public Filtro Filtro { get { return (Filtro)this.Entidad; } }
+
+        public int Entero { get { return (int)this.Entidad.Atributos["Entero"].Valor.Actual; } set { this.Entidad.Atributos["Entero"].Valor.Actual = value; } }
+
+        public DateTime Fecha { get { return (DateTime)this.Entidad.Atributos["Fecha"].Valor.Actual; } set { this.Entidad.Atributos["Fecha"].Valor.Actual = value; } }
+
+        public decimal Importe { get { return (decimal)this.Entidad.Atributos["Importe"].Valor.Actual; } set { this.Entidad.Atributos["Importe"].Valor.Actual = value; } }
+
+        #region Registro
+        public Registros Registros { get { return (Registros)this.Entidad.Atributos["Registro"].Colección; } set { this.Entidad.Atributos["Registro"].Colección = value; } }
+
+        public Registro Registro { get { return (Registro)this.Registros.Obtener(); } }
+
+        public string IdRegistro { get { return (string)this.Entidad.Atributos["Registro"].Valor.Actual; } set { this.Entidad.Atributos["Registro"].Valor.Actual = value; } }
+        #endregion
+
+        public string Texto { get { return (string)this.Entidad.Atributos["Texto"].Valor.Actual; } set { this.Entidad.Atributos["Texto"].Valor.Actual = value; } }
+
+        public string ObtenerValorString
+        {
+            get
+            {
+                return (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Entero ? this.Entero.ToString() : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Fecha ? this.Fecha.ToString("dd/MM/yyyy") : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Importe ? this.Importe.ToString() : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Maestro ? this.Registro.Registro.Título : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Texto ? this.Texto : string.Empty)))));
+            }
+        }
+
+        public string Script
+        {
+            get
+            {
+                return (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Entero ? this.Entero.ToString() : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Fecha ? this.Fecha.ToString("'yyyyMMdd'") : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Importe ? this.Importe.ToString() : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Maestro ? "'" + this.Registro.Nombre + "'" : (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Texto ? "'" + this.Texto + "'" : string.Empty)))));
+            }
+        }
+        #endregion
+
+        #region Métodos
+        public void EstablecerValor(object Valor)
+        {
+            if (Valor.GetType() != Type.GetType("System.DBNull")) //System.DBNull
+            {
+                if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Entero)
+                    this.Entero = (int)Valor;
+
+                if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Fecha)
+                    this.Fecha = (System.DateTime)Valor;
+
+                if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Importe)
+                    this.Importe = (decimal)Valor;
+
+                if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Maestro)
+                    this.IdRegistro = (string)Valor;
+
+                if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Texto)
+                    this.Texto = (string)Valor;
+            }
+        }
+        #endregion
+
+        #region Eventos
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoAtributo = TipoAtributo.Ninguno;
+
+            this.Identidad.Clave = "Valor";
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Entidad.Atributos.Add(new Atributo("Entero", TipoAtributo.Entero) { Dependencia = "Columna" });
+
+            this.Entidad.Atributos.Add(new Atributo("Fecha", TipoAtributo.Fecha) { Dependencia = "Columna" });
+
+            this.Entidad.Atributos.Add(new Atributo("Importe", TipoAtributo.Importe) { Dependencia = "Columna" });
+
+            this.Entidad.Atributos.Add(new Atributo("Texto", TipoAtributo.Texto) { Dependencia = "Columna" });
+
+            this.Entidad.Atributos.Add(new Atributo("Registro", TipoAtributo.Registro) { Colección = new Registros(this.Entidad.Solución), Dependencia = "Columna" });
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarRegistros()
+        {
+            this.Registros.TextoComando.Fuente = "SELECT * FROM Registros WHERE Maestro = '" + this.Filtro.Columna.IdMaestro + "'";
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Registro")
+                this.SeleccionarRegistros();
+        }
+        #endregion
+
+        #region RestringiendoAtributo
+        private void RestringirTexto(Atributo Atributo)
+        {
+            if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Texto)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        private void RestringirFecha(Atributo Atributo)
+        {
+            if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Fecha)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        private void RestringirRegistro(Atributo Atributo)
+        {
+            if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Maestro)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        private void RestringirEntero(Atributo Atributo)
+        {
+            if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Entero)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        private void RestringirImporte(Atributo Atributo)
+        {
+            if (this.Filtro.Columna.TipoDeColumna == TipoDeColumna.Importe)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "Texto")
+                this.RestringirTexto(Atributo);
+
+            if (Atributo.Identidad.Clave == "Fecha")
+                this.RestringirFecha(Atributo);
+
+            if (Atributo.Identidad.Clave == "Registro")
+                this.RestringirRegistro(Atributo);
+
+            if (Atributo.Identidad.Clave == "Entero")
+                this.RestringirEntero(Atributo);
+
+            if (Atributo.Identidad.Clave == "Importe")
+                this.RestringirImporte(Atributo);
+        }
+        #endregion
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public enum QuitarResultadosConIndicadoresIgualACeros { Ninguno, No, Sí }
+
+    public class Representación : Entidad
+    {
+        #region Constructores
+        public Representación() : base() { }
+
+        public Representación(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Reporte
+        public Reportes Reportes { get { return (Reportes)this.Atributos["Reporte"].Colección; } set { this.Atributos["Reporte"].Colección = value; } }
+
+        public Reporte Reporte { get { return (Reporte)this.Reportes.Obtener(); } }
+
+        public string IdReporte { get { return (string)this.Atributos["Reporte"].Valor.Actual; } set { this.Atributos["Reporte"].Valor.Actual = value; } }
+        #endregion
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public int Cima { get { return (int)this.Atributos["Cima"].Valor.Actual; } set { this.Atributos["Cima"].Valor.Actual = value; } }
+
+        public string Script { get { return (string)this.Atributos["Script"].Valor.Actual; } set { this.Atributos["Script"].Valor.Actual = value; } }
+
+        public int CantidadDeIndicadores { get { return (int)this.Atributos["CantidadDeIndicadores"].Valor.Actual; } set { this.Atributos["CantidadDeIndicadores"].Valor.Actual = value; } }
+
+        public QuitarResultadosConIndicadoresIgualACeros QuitarResultadosConIndicadoresIgualACeros { get { return (QuitarResultadosConIndicadoresIgualACeros)this.Atributos["QuitarResultadosConIndicadoresIgualACeros"].Valor.Actual; } set { this.Atributos["QuitarResultadosConIndicadoresIgualACeros"].Valor.Actual = (int)value; } }
+
+        public Agrupaciones Agrupaciones { get { return (Agrupaciones)this.Atributos["Agrupaciones"].Colección; } set { this.Atributos["Agrupaciones"].Colección = value; } }
+
+        public Indicadores Indicadores { get { return (Indicadores)this.Atributos["Indicadores"].Colección; } set { this.Atributos["Indicadores"].Colección = value; } }
+
+        public Colección Resultados { get { return (Colección)this.Atributos["Resultados"].Colección; } set { this.Atributos["Resultados"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        public void ActualizarScript()
+        {
+            bool _Abierto = this.Abrir(TipoEstructura.Valores);
+
+            this.Script = string.Empty;
+
+            #region Indicadores
+            string _Cálculos = string.Empty;
+
+            this.Indicadores.Cargar(TipoEstructura.Valores);
+
+            foreach (Indicador _Indicador in this.Indicadores)
+            {
+                if (_Cálculos != string.Empty)
+                    _Cálculos += ", ";
+
+                //_Cálculos += (_Indicador.TipoDeIndicador == TipoDeIndicador.Conteo ? "COUNT(" : (_Indicador.TipoDeIndicador == TipoDeIndicador.Suma ? "SUM(" : string.Empty)) + _Indicador.Columna.Nombre + ") AS " + _Indicador.Script;
+                _Cálculos += (_Indicador.TipoDeIndicador == TipoDeIndicador.Conteo ? "COUNT(" : (_Indicador.TipoDeIndicador == TipoDeIndicador.Suma ? "SUM(" : string.Empty)) + _Indicador.Columna.Clave + ") AS " + _Indicador.Columna.Clave;
+            }
+            #endregion
+
+            #region Agrupaciones
+            string _Agrupaciones = string.Empty;
+
+            this.Agrupaciones.Cargar(TipoEstructura.Valores);
+
+            foreach (Agrupación _Agrupación in this.Agrupaciones)
+            {
+                if (_Agrupaciones != string.Empty)
+                    _Agrupaciones += ", ";
+
+                //_Agrupaciones += _Agrupación.Columna.Nombre;
+                _Agrupaciones += _Agrupación.Columna.Clave;
+            }
+
+            if (_Agrupaciones == string.Empty || _Cálculos == string.Empty)
+            {
+                if (this.Cima == 0)
+                    this.Script = this.Reporte.Script;
+
+                else this.Script = "SELECT TOP " + this.Cima.ToString() + " (" + this.Reporte.Script + ") AS A";
+            }
+
+            else this.Script = "SELECT " + (this.Cima == 0 ? string.Empty : "TOP " + this.Cima.ToString()) + " " + _Agrupaciones + ", " + _Cálculos + " FROM (" + this.Reporte.Script + ") AS A GROUP BY " + _Agrupaciones;
+            #endregion
+
+            #region Órdenes
+            string _Órdenes = string.Empty;
+
+            foreach (Indicador _Indicador in this.Indicadores)
+            {
+                if (_Indicador.OrdenDeIndicador != OrdenDeIndicador.Ninguno)
+                {
+                    if (_Órdenes != string.Empty)
+                        _Órdenes += ", ";
+
+                    //_Órdenes += _Indicador.Script + (_Indicador.OrdenDeIndicador == OrdenDeIndicador.Descendente ? " DESC" : string.Empty);
+                    _Órdenes += _Indicador.Columna.Clave + (_Indicador.OrdenDeIndicador == OrdenDeIndicador.Descendente ? " DESC" : string.Empty);
+                }
+            }
+
+            if (_Órdenes != string.Empty)
+                this.Script += " ORDER BY " + _Órdenes;
+            #endregion
+
+            #region QuitarResultadosConIndicadoresIgualACeros
+            if (this.QuitarResultadosConIndicadoresIgualACeros == QuitarResultadosConIndicadoresIgualACeros.Sí)
+            {
+                string _IndicadoresDiferenteACero = string.Empty;
+
+                foreach (Indicador _Indicador in this.Indicadores)
+                {
+                    if (_IndicadoresDiferenteACero != string.Empty)
+                        _IndicadoresDiferenteACero += " AND ";
+
+                    //_IndicadoresDiferenteACero += _Indicador.Script + " <> 0";
+                    _IndicadoresDiferenteACero += _Indicador.Columna.Clave + " <> 0";
+                }
+
+                if (_IndicadoresDiferenteACero != string.Empty)
+                    this.Script = "SELECT * FROM (" + this.Script + ") AS B WHERE " + _IndicadoresDiferenteACero;
+            }
+            #endregion
+
+            this.CantidadDeIndicadores = this.Indicadores.Count;
+
+            this.Guardar(GuardarCerrar.Sí, _Abierto);
+        }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Representación(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Representación";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Representaciones";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Agrupación(this.Solución));
+
+            this.AccesosDirectos.Agregar(new Indicador(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Reporte", TipoAtributo.Registro) { Colección = new Reportes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Cima", TipoAtributo.Entero));
+
+            this.Atributos.Add(new Atributo("ActualizarScriptConCima", TipoAtributo.Comando));
+
+            this.Atributos.Add(new Atributo("Script", TipoAtributo.Edición) { /*Dependencia = "Cima"*/ });
+
+            this.Atributos.Add(new Atributo("CantidadDeIndicadores", TipoAtributo.Entero));
+
+            this.Atributos.Add(new Atributo("QuitarResultadosConIndicadoresIgualACeros", TipoAtributo.Enumeración));
+
+            this.Atributos.Add(new Atributo("ActualizarScript", TipoAtributo.Comando));
+
+            this.Atributos.Add(new Atributo("Agrupaciones", TipoAtributo.Carpeta) { Colección = new Agrupaciones(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Indicadores", TipoAtributo.Carpeta) { Colección = new Indicadores(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Resultados", TipoAtributo.Carpeta) { Colección = new Colección(this.Solución) { TipoColección = TipoColección.DataTable } });
+        }
+
+        protected override void PreparandoLiterales(Atributo Atributo)
+        {
+            base.PreparandoLiterales(Atributo);
+
+            if (Atributo.Identidad.Clave == "QuitarResultadosConIndicadoresIgualACeros")
+            {
+                Atributo.Literales.Add(new Elemento(QuitarResultadosConIndicadoresIgualACeros.No.GetHashCode().ToString(), QuitarResultadosConIndicadoresIgualACeros.No.ToString()));
+
+                Atributo.Literales.Add(new Elemento(QuitarResultadosConIndicadoresIgualACeros.Sí.GetHashCode().ToString(), QuitarResultadosConIndicadoresIgualACeros.Sí.ToString()));
+            }
+        }
+
+        #region EjecutandoComando
+        private void EjecutarComandoActualizarScriptConCima()
+        {
+            this.ActualizarScript();
+        }
+
+        private void EjecutarComandoActualizarScript()
+        {
+            this.ActualizarScript();
+        }
+
+        protected override void EjecutandoComando(Atributo Comando)
+        {
+            base.EjecutandoComando(Comando);
+
+            if (Comando.Identidad.Clave == "ActualizarScriptConCima")
+                this.EjecutarComandoActualizarScriptConCima();
+
+            if (Comando.Identidad.Clave == "ActualizarScript")
+                this.EjecutarComandoActualizarScript();
+        }
+        #endregion
+
+        #region RestringiendoAtributo
+        //private void RestringirScript()
+        //{
+        //    this.ActualizarScript();
+        //}
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            //if (Atributo.Identidad.Clave == "Script")
+            //    this.RestringirScript();
+        }
+        #endregion
+
+        protected override void Abierto()
+        {
+            this.Atributos["Resultados"].Colección.CadenaDeConexión = this.Reporte.Consulta.Fuente.CadenaDeConexión;
+
+            base.Abierto();
+        }
+
+        protected override void ColecciónPreparada(Atributo Atributo)
+        {
+            //if (Atributo.Identidad.Clave == "Resultados")
+            //    Atributo.Colección.CadenaDeConexión = this.Reporte.Consulta.Fuente.CadenaDeConexión;
+
+            base.ColecciónPreparada(Atributo);
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarResultados()
+        {
+            this.Resultados.TextoComando.Fuente = this.Script;
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Resultados")
+                this.SeleccionarResultados();
+        }
+        #endregion
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+
+        //protected override void Cambiado(AcciónDeCambio AcciónDeCambio)
+        //{
+        //    this.ActualizarScript();
+
+        //    base.Cambiado(AcciónDeCambio);
+        //}
+        #endregion
+    }
+
+    public class Representaciones : Colección
+    {
+        #region Constructores
+        public Representaciones(Entidad Solución) : base(Solución, new Representación(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Representación Obtener(string Clave) { return (Representación)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Representación(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Agrupación : Entidad
+    {
+        #region Constructores
+        public Agrupación() : base() { }
+
+        public Agrupación(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Representación
+        public Representaciones Representaciones { get { return (Representaciones)this.Atributos["Representación"].Colección; } set { this.Atributos["Representación"].Colección = value; } }
+
+        public Representación Representación { get { return (Representación)this.Representaciones.Obtener(); } }
+
+        public string IdRepresentación { get { return (string)this.Atributos["Representación"].Valor.Actual; } set { this.Atributos["Representación"].Valor.Actual = value; } }
+        #endregion
+
+        public int Orden { get { return (int)this.Atributos["Orden"].Valor.Actual; } set { this.Atributos["Orden"].Valor.Actual = value; } }
+
+        #region Columna
+        public Columnas Columnas { get { return (Columnas)this.Atributos["Columna"].Colección; } set { this.Atributos["Columna"].Colección = value; } }
+
+        public Columna Columna { get { return (Columna)this.Columnas.Obtener(); } }
+
+        public string IdColumna { get { return (string)this.Atributos["Columna"].Valor.Actual; } set { this.Atributos["Columna"].Valor.Actual = value; } }
+        #endregion
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Agrupación(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Agrupación";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Agrupaciones";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Orden.ToString() + " - " + this.Columna.Registro.Título;
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Representación", TipoAtributo.Registro) { Colección = new Representaciones(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Orden", TipoAtributo.Entero));
+
+            this.Atributos.Add(new Atributo("Columna", TipoAtributo.Registro) { Colección = new Columnas(this.Solución) });
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarColumnas()
+        {
+            this.Columnas.TextoComando.Fuente = "SELECT * FROM Columnas WHERE Consulta = '" + this.Representación.Reporte.IdConsulta + "'";
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Columna")
+                this.SeleccionarColumnas();
+        }
+        #endregion
+
+        protected override void Cambiado(AcciónDeCambio AcciónDeCambio)
+        {
+            this.Representación.ActualizarScript();
+
+            base.Cambiado(AcciónDeCambio);
+        }
+        #endregion
+    }
+
+    public class Agrupaciones : Colección
+    {
+        #region Constructores
+        public Agrupaciones(Entidad Solución) : base(Solución, new Agrupación(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Agrupación Obtener(string Clave) { return (Agrupación)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Agrupación(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public enum TipoDeIndicador { Ninguno, Conteo, Suma }
+
+    public enum OrdenDeIndicador { Cero, Ninguno, Ascendente, Descendente }
+
+    public class Indicador : Entidad
+    {
+        #region Constructores
+        public Indicador() : base() { }
+
+        public Indicador(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Representación
+        public Representaciones Representaciones { get { return (Representaciones)this.Atributos["Representación"].Colección; } set { this.Atributos["Representación"].Colección = value; } }
+
+        public Representación Representación { get { return (Representación)this.Representaciones.Obtener(); } }
+
+        public string IdRepresentación { get { return (string)this.Atributos["Representación"].Valor.Actual; } set { this.Atributos["Representación"].Valor.Actual = value; } }
+        #endregion
+
+        public TipoDeIndicador TipoDeIndicador { get { return (TipoDeIndicador)this.Atributos["TipoDeIndicador"].Valor.Actual; } set { this.Atributos["TipoDeIndicador"].Valor.Actual = (int)value; } }
+
+        #region Columna
+        public Columnas Columnas { get { return (Columnas)this.Atributos["Columna"].Colección; } set { this.Atributos["Columna"].Colección = value; } }
+
+        public Columna Columna { get { return (Columna)this.Columnas.Obtener(); } }
+
+        public string IdColumna { get { return (string)this.Atributos["Columna"].Valor.Actual; } set { this.Atributos["Columna"].Valor.Actual = value; } }
+        #endregion
+
+        public string Script { get { return (string)this.Atributos["Script"].Valor.Actual; } set { this.Atributos["Script"].Valor.Actual = value; } }
+
+        public OrdenDeIndicador OrdenDeIndicador { get { return (OrdenDeIndicador)this.Atributos["OrdenDeIndicador"].Valor.Actual; } set { this.Atributos["OrdenDeIndicador"].Valor.Actual = (int)value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Indicador(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Indicador";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Indicadores";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.TipoDeIndicador.ToString() + " de " + this.Columna.Registro.Título.ToLower();
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Representación", TipoAtributo.Registro) { Colección = new Representaciones(this.Solución) });
+
+            this.Atributos.Add(new Atributo("TipoDeIndicador", TipoAtributo.Enumeración));
+
+            this.Atributos.Add(new Atributo("Columna", TipoAtributo.Registro) { Colección = new Columnas(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Script", TipoAtributo.Texto) { Dependencia = "TipoDeIndicador;Columna" });
+
+            this.Atributos.Add(new Atributo("OrdenDeIndicador", TipoAtributo.Enumeración));
+        }
+
+        protected override void PreparandoLiterales(Atributo Atributo)
+        {
+            base.PreparandoLiterales(Atributo);
+
+            if (Atributo.Identidad.Clave == "TipoDeIndicador")
+            {
+                Atributo.Literales.Add(new Elemento(TipoDeIndicador.Conteo.GetHashCode().ToString(), TipoDeIndicador.Conteo.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeIndicador.Suma.GetHashCode().ToString(), TipoDeIndicador.Suma.ToString()));
+            }
+
+            if (Atributo.Identidad.Clave == "OrdenDeIndicador")
+            {
+                Atributo.Literales.Add(new Elemento(OrdenDeIndicador.Ninguno.GetHashCode().ToString(), OrdenDeIndicador.Ninguno.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OrdenDeIndicador.Ascendente.GetHashCode().ToString(), OrdenDeIndicador.Ascendente.ToString()));
+
+                Atributo.Literales.Add(new Elemento(OrdenDeIndicador.Descendente.GetHashCode().ToString(), OrdenDeIndicador.Descendente.ToString()));
+            }
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarColumnas()
+        {
+            this.Columnas.TextoComando.Fuente = "SELECT * FROM Columnas WHERE Consulta = '" + this.Representación.Reporte.IdConsulta + "'";
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Columna")
+                this.SeleccionarColumnas();
+        }
+        #endregion
+
+        #region RestringiendoAtributo
+        private void RestringirScript()
+        {
+            this.Script = this.TipoDeIndicador.ToString() + "De" + this.Columna.Clave;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "Script")
+                this.RestringirScript();
+        }
+        #endregion
+
+        protected override void Cambiado(AcciónDeCambio AcciónDeCambio)
+        {
+            this.Representación.ActualizarScript();
+
+            base.Cambiado(AcciónDeCambio);
+        }
+        #endregion
+    }
+
+    public class Indicadores : Colección
+    {
+        #region Constructores
+        public Indicadores(Entidad Solución) : base(Solución, new Indicador(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Indicador Obtener(string Clave) { return (Indicador)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Indicador(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Tablero : Entidad
+    {
+        #region Constructores
+        public Tablero() : base() { }
+
+        public Tablero(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public new Grupos Grupos { get { return (Grupos)this.Atributos["Grupos"].Colección; } set { this.Atributos["Grupos"].Colección = value; } }
+
+        public Tarjetas Tarjetas { get { return (Tarjetas)this.Atributos["Tarjetas"].Colección; } set { this.Atributos["Tarjetas"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Tablero(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Tablero";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Tableros";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Grupo(this.Solución));
+
+            this.AccesosDirectos.Agregar(new Tarjeta(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Grupos", TipoAtributo.Carpeta) { Colección = new Grupos(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Tarjetas", TipoAtributo.Carpeta) { Colección = new Tarjetas(this.Solución) });
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Tableros : Colección
+    {
+        #region Constructores
+        public Tableros(Entidad Solución) : base(Solución, new Tablero(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Tablero Obtener(string Script) { return (Tablero)this.ObtenerX(Script); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Tablero(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class Grupo : Entidad
+    {
+        #region Constructores
+        public Grupo() : base() { }
+
+        public Grupo(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Tablero
+        public Tableros Tableros { get { return (Tableros)this.Atributos["Tablero"].Colección; } set { this.Atributos["Tablero"].Colección = value; } }
+
+        public Tablero Tablero { get { return (Tablero)this.Tableros.Obtener(); } }
+
+        public string IdTablero { get { return (string)this.Atributos["Tablero"].Valor.Actual; } set { this.Atributos["Tablero"].Valor.Actual = value; } }
+        #endregion
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public Tarjetas Tarjetas { get { return (Tarjetas)this.Atributos["Tarjetas"].Colección; } set { this.Atributos["Tarjetas"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Grupo(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Grupo";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Grupos";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAccesosDirectos()
+        {
+            base.PreparandoAccesosDirectos();
+
+            this.AccesosDirectos.Agregar(new Tarjeta(this.Solución));
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Tablero", TipoAtributo.Registro) { Colección = new Tableros(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("Tarjetas", TipoAtributo.Carpeta) { Colección = new Tarjetas(this.Solución) });
+        }
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Grupos : Colección
+    {
+        #region Constructores
+        public Grupos(Entidad Solución) : base(Solución, new Grupo(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Grupo Obtener(string Clave) { return (Grupo)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Grupo(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    //public enum TipoDeTarjeta { Ninguno, Gráfico, Tabla }
+
+    public class Tarjeta : Entidad
+    {
+        #region Constructores
+        public Tarjeta() : base() { }
+
+        public Tarjeta(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Tablero
+        public Tableros Tableros { get { return (Tableros)this.Atributos["Tablero"].Colección; } set { this.Atributos["Tablero"].Colección = value; } }
+
+        public Tablero Tablero { get { return (Tablero)this.Tableros.Obtener(); } }
+
+        public string IdTablero { get { return (string)this.Atributos["Tablero"].Valor.Actual; } set { this.Atributos["Tablero"].Valor.Actual = value; } }
+        #endregion
+
+        #region Grupo
+        public new Grupos Grupos { get { return (Grupos)this.Atributos["Grupo"].Colección; } set { this.Atributos["Grupo"].Colección = value; } }
+
+        public Grupo Grupo { get { return (Grupo)this.Grupos.Obtener(); } }
+
+        public string IdGrupo { get { return (string)this.Atributos["Grupo"].Valor.Actual; } set { this.Atributos["Grupo"].Valor.Actual = value; } }
+        #endregion
+
+        #region Reporte
+        public Reportes Reportes { get { return (Reportes)this.Atributos["Reporte"].Colección; } set { this.Atributos["Reporte"].Colección = value; } }
+
+        public Reporte Reporte { get { return (Reporte)this.Reportes.Obtener(); } }
+
+        public string IdReporte { get { return (string)this.Atributos["Reporte"].Valor.Actual; } set { this.Atributos["Reporte"].Valor.Actual = value; } }
+        #endregion
+
+        #region Representación
+        public Representaciones Representaciones { get { return (Representaciones)this.Atributos["Representación"].Colección; } set { this.Atributos["Representación"].Colección = value; } }
+
+        public Representación Representación { get { return (Representación)this.Representaciones.Obtener(); } }
+
+        public string IdRepresentación { get { return (string)this.Atributos["Representación"].Valor.Actual; } set { this.Atributos["Representación"].Valor.Actual = value; } }
+        #endregion
+
+        public string Nombre { get { return (string)this.Atributos["Nombre"].Valor.Actual; } set { this.Atributos["Nombre"].Valor.Actual = value; } }
+
+        public TipoDeTarjeta TipoDeTarjeta { get { return (TipoDeTarjeta)this.Atributos["TipoDeTarjeta"].Valor.Actual; } set { this.Atributos["TipoDeTarjeta"].Valor.Actual = (int)value; } }
+
+        public TipoDeGráfico TipoDeGráfico { get { return (TipoDeGráfico)this.Atributos["TipoDeGráfico"].Valor.Actual; } set { this.Atributos["TipoDeGráfico"].Valor.Actual = (int)value; } }
+
+        public Colección Resultados { get { return (Colección)this.Atributos["Resultados"].Colección; } set { this.Atributos["Resultados"].Colección = value; } }
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Tarjeta(this.Solución); }
+
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Registro;
+
+            this.Identidad.Clave = "Tarjeta";
+        }
+
+        protected override void PreparandoRegistro()
+        {
+            base.PreparandoRegistro();
+
+            this.Registro.Tabla.Nombre = "Tarjetas";
+        }
+
+        protected override void GenerandoTítulo()
+        {
+            base.GenerandoTítulo();
+
+            this.Registro.Título = this.Nombre;
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Tablero", TipoAtributo.Registro) { Colección = new Tableros(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Grupo", TipoAtributo.Registro) { Colección = new Grupos(this.Solución), Dependencia = "Tablero" });
+
+            this.Atributos.Add(new Atributo("Reporte", TipoAtributo.Registro) { Colección = new Reportes(this.Solución) });
+
+            this.Atributos.Add(new Atributo("Representación", TipoAtributo.Registro) { Colección = new Representaciones(this.Solución), Dependencia = "Reporte" });
+
+            this.Atributos.Add(new Atributo("Nombre", TipoAtributo.Texto));
+
+            this.Atributos.Add(new Atributo("TipoDeTarjeta", TipoAtributo.Enumeración));
+
+            this.Atributos.Add(new Atributo("TipoDeGráfico", TipoAtributo.Enumeración) { Dependencia = "TipoDeTarjeta" });
+
+            this.Atributos.Add(new Atributo("Resultados", TipoAtributo.Carpeta) { Colección = new Colección(this.Solución) { TipoColección = TipoColección.DataTable }, Dependencia = "Representación" });
+        }
+
+        protected override void PreparandoLiterales(Atributo Atributo)
+        {
+            base.PreparandoLiterales(Atributo);
+
+            if (Atributo.Identidad.Clave == "TipoDeTarjeta")
+            {
+                Atributo.Literales.Add(new Elemento(TipoDeTarjeta.Gráfico.GetHashCode().ToString(), TipoDeTarjeta.Gráfico.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeTarjeta.Tabla.GetHashCode().ToString(), TipoDeTarjeta.Tabla.ToString()));
+            }
+
+            if (Atributo.Identidad.Clave == "TipoDeGráfico")
+            {
+                Atributo.Literales.Add(new Elemento(TipoDeGráfico.Automático.GetHashCode().ToString(), TipoDeGráfico.Automático.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeGráfico.Área.GetHashCode().ToString(), TipoDeGráfico.Área.ToString()));
+
+                Atributo.Literales.Add(new Elemento(TipoDeGráfico.Barras.GetHashCode().ToString(), TipoDeGráfico.Barras.ToString()));
+            }
+        }
+
+        #region RestringiendoAtributo
+        private void RestringirTipoDeGráfico(Atributo Atributo)
+        {
+            if (this.TipoDeTarjeta == TipoDeTarjeta.Gráfico)
+                Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "TipoDeGráfico")
+                this.RestringirTipoDeGráfico(Atributo);
+        }
+        #endregion
+
+        protected override void Abierto()
+        {
+            this.Atributos["Resultados"].Colección.CadenaDeConexión = this.Reporte.Consulta.Fuente.CadenaDeConexión;
+
+            base.Abierto();
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarGrupos()
+        {
+            this.Grupos.TextoComando.Fuente = "SELECT * FROM Grupos WHERE Tablero = '" + this.IdTablero + "'";
+        }
+
+        private void SeleccionarResultados()
+        {
+            this.Resultados.TextoComando.Fuente = this.Representación.Script;
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Identidad.Clave == "Grupo")
+                this.SeleccionarGrupos();
+
+            if (Atributo.Identidad.Clave == "Resultados")
+                this.SeleccionarResultados();
+        }
+        #endregion
+
+        #region ColecciónCargada
+        private void ResultadosCargados()
+        {
+            this.Representación.Agrupaciones.Cargar(TipoEstructura.Valores);
+
+            foreach (Agrupación _Agrupación in this.Representación.Agrupaciones)
+            {
+                this.Resultados.DataTable.Columns[_Agrupación.Columna.Clave].Caption = _Agrupación.Columna.Nombre;
+            }
+
+            this.Representación.Indicadores.Cargar(TipoEstructura.Valores);
+
+            foreach (Indicador _Indicador in this.Representación.Indicadores)
+            {
+                this.Resultados.DataTable.Columns[_Indicador.Columna.Clave].Caption = _Indicador.Columna.Nombre;
+            }
+        }
+
+        protected override void ColecciónCargada(Atributo Atributo)
+        {
+            if (Atributo.Identidad.Clave == "Resultados")
+                this.ResultadosCargados();
+
+            base.ColecciónCargada(Atributo);
+        }
+        #endregion
+
+        protected override bool Guardando()
+        {
+            if (this.Nombre == string.Empty)
+                this.Nombre = "(sin nombre)";
+
+            return base.Guardando();
+        }
+        #endregion
+    }
+
+    public class Tarjetas : Colección
+    {
+        #region Constructores
+        public Tarjetas(Entidad Solución) : base(Solución, new Tarjeta(Solución)) { }
+        #endregion
+
+        #region Métodos
+        public Tarjeta Obtener(string Clave) { return (Tarjeta)this.ObtenerX(Clave); }
+        #endregion
+
+        #region Eventos
+        protected override void AgregandoNuevoEntidad() { base.AgregandoNuevoEntidad(); this.NuevoEntidad = new Tarjeta(this.Solución); }
+        #endregion
+    }
+}
+
+using Aplimática.Framework;
+
+namespace Aplimática.Finnerve.Dashboard
+{
+    public class TableroDeMando : Entidad
+    {
+        #region Constructores
+        public TableroDeMando() : base() { }
+
+        public TableroDeMando(Entidad Solución) : base(Solución) { }
+        #endregion
+
+        #region Propiedades
+        #region Tablero
+        public Tableros Tableros { get { return (Tableros)this.Atributos["Tablero"].Colección; } set { this.Atributos["Tablero"].Colección = value; } }
+
+        public Tablero Tablero { get { return (Tablero)this.Tableros.Obtener(); } }
+
+        public string IdTablero { get { return (string)this.Atributos["Tablero"].Valor.Actual; } set { this.Atributos["Tablero"].Valor.Actual = value; } }
+        #endregion
+        #endregion
+
+        #region Métodos
+        #endregion
+
+        #region Eventos
+        protected override void Identificando()
+        {
+            base.Identificando();
+
+            this.TipoEntidad = TipoEntidad.Herramienta;
+
+            #region Identidad
+            this.Identidad.Clave = "TableroDeMando";
+
+            this.Identidad.Nombre = "Tablero de mando";
+            #endregion
+        }
+
+        protected override void PreparandoAtributos()
+        {
+            base.PreparandoAtributos();
+
+            this.Atributos.Add(new Atributo("Tablero", TipoAtributo.Registro) { Colección = new Tableros(this.Solución) });
+
+            this.Atributos.Add(new Atributo("IndicadoresDinámicos", TipoAtributo.Grupo) { Dependencia = "Tablero" });
+        }
+
+        private Tarjetas ObtenerTarjetas()
+        {
+            Tarjetas _Tarjetas = new Tarjetas(this.Solución);
+
+            _Tarjetas.TextoComando.Externo = "SELECT * FROM Tarjetas WHERE Grupo IN (SELECT Id FROM Grupos WHERE Tablero = '" + this.IdTablero + "') ORDER BY Título DESC";
+
+            _Tarjetas.Cargar(TipoEstructura.Valores);
+
+            return _Tarjetas;
+        }
+
+        #region SeleccionandoColección
+        private void SeleccionarTableros()
+        {
+            this.Tableros.TextoComando.Fuente = "SELECT * FROM Tableros WHERE Id = '65c16a5c-efd2-4a67-a1d9-6ace46c2853b'";
+        }
+
+        private void SeleccionarCarpetaDinámica(Atributo Atributo)
+        {
+            foreach (Tarjeta _Tarjeta in this.ObtenerTarjetas())
+            {
+                if (_Tarjeta.Registro.Id == Atributo.Identidad.Clave)
+                {
+                    Atributo.Colección.TextoComando.Fuente = _Tarjeta.Representación.Script;
+
+                    break;
+                }
+            }
+        }
+
+        protected override void SeleccionandoColección(Atributo Atributo)
+        {
+            base.SeleccionandoColección(Atributo);
+
+            if (Atributo.Grupo.Identidad.Clave == "Tablero")
+                this.SeleccionarTableros();
+
+            if (Atributo.Grupo.Identidad.Clave == "IndicadoresDinámicos")
+                this.SeleccionarCarpetaDinámica(Atributo);
+        }
+        #endregion
+
+        #region ColecciónCargada
+        private void ResultadosCargados(Atributo Atributo)
+        {
+            foreach (Tarjeta _Tarjeta in this.ObtenerTarjetas())
+            {
+                if (_Tarjeta.Registro.Id == Atributo.Identidad.Clave)
+                {
+                    _Tarjeta.Representación.Agrupaciones.Cargar(TipoEstructura.Valores);
+
+                    foreach (Agrupación _Agrupación in _Tarjeta.Representación.Agrupaciones)
+                    {
+                        Atributo.Colección.DataTable.Columns[_Agrupación.Columna.Clave].Caption = _Agrupación.Columna.Nombre;
+                    }
+
+                    _Tarjeta.Representación.Indicadores.Cargar(TipoEstructura.Valores);
+
+                    foreach (Indicador _Indicador in _Tarjeta.Representación.Indicadores)
+                    {
+                        Atributo.Colección.DataTable.Columns[_Indicador.Columna.Clave].Caption = _Indicador.Columna.Nombre;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        protected override void ColecciónCargada(Atributo Atributo)
+        {
+            //if (Atributo.Identidad.Clave == "Resultados")
+                this.ResultadosCargados(Atributo);
+
+            base.ColecciónCargada(Atributo);
+        }
+        #endregion
+
+        #region PreparandoAtributosDinámicos
+        private void QuitarIndicadoresDinámicos()
+        {
+            this.Dashboard.Limpiar();
+
+            Atributos _Atributos = new Atributos();
+
+            this.CopiarAtributos(this.Atributos["IndicadoresDinámicos"].Atributos, _Atributos);
+
+            foreach (Atributo _Atributo in _Atributos)
+            {
+                this.QuitarRestricciones(_Atributo);
+
+                _Atributo.Grupo.Atributos.Remove(_Atributo);
+
+                _Atributo.Sección.Atributos.Remove(_Atributo);
+
+                _Atributo.Sección.Carpetas.Remove(_Atributo);
+
+                this.Atributos.Remove(_Atributo);
+            }
+        }
+
+        private void AgregarIndicadoresDinámicos()
+        {
+            Tarjetas _Tarjetas = this.ObtenerTarjetas();
+
+            foreach (Tarjeta _Tarjeta in _Tarjetas)
+            {
+                Atributo _Atributo = new Atributo(_Tarjeta.Registro.Id, _Tarjeta.Registro.Título, TipoAtributo.Carpeta) { Colección = new Colección(this.Solución) { TipoColección = TipoColección.DataTable }, Entidad = this };
+
+                _Atributo.Grupo = this.Atributos["IndicadoresDinámicos"];
+
+                _Atributo.Sección = this.Atributos["IndicadoresDinámicos"].Sección;
+
+                this.Atributos.Insert(this.Atributos.IndexOf(this.Atributos["IndicadoresDinámicos"]) + 1, _Atributo);
+
+                _Atributo.Grupo.Atributos.Add(_Atributo);
+
+                _Atributo.Sección.Atributos.Add(_Atributo);
+
+                _Atributo.PrepararEstructura();
+
+                _Atributo.Colección.Atributo = _Atributo;
+
+                _Atributo.Colección.CadenaDeConexión = _Tarjeta.Reporte.Consulta.Fuente.CadenaDeConexión;
+            }
+
+            this.PrepararEstructuraSeccionesGrupos();
+
+            this.ActualizarCarpetasVisibles();
+        }
+
+        private void PrepararDashboard()
+        {
+            this.Tablero.Grupos.Cargar(TipoEstructura.Valores);
+
+            foreach (Grupo _Grupo in this.Tablero.Grupos)
+            {
+                Panel _Panel = new Panel(_Grupo.Registro.Id, _Grupo.Nombre);
+
+                _Grupo.Tarjetas.Cargar(TipoEstructura.Valores);
+
+                foreach (Dashboard.Tarjeta _Tarjeta in _Grupo.Tarjetas)
+                {
+                    Framework.Tarjeta _TarjetaDePanel = new Framework.Tarjeta(_Tarjeta.Registro.Id, _Tarjeta.Registro.Título, _Tarjeta.Reporte.Registro.Título);
+
+                    //_Tarjeta.Atributo = _Indicador.Atributos["Resultados"];
+                    _TarjetaDePanel.Atributo = this.Atributos[_Tarjeta.Registro.Id];
+
+                    _TarjetaDePanel.Indicadores = _Tarjeta.Representación.CantidadDeIndicadores;
+
+                    _TarjetaDePanel.TipoDeTarjeta = (_Tarjeta.TipoDeTarjeta == TipoDeTarjeta.Gráfico ? TipoDeTarjeta.Gráfico : (_Tarjeta.TipoDeTarjeta == TipoDeTarjeta.Tabla ? TipoDeTarjeta.Tabla : TipoDeTarjeta.Ninguno));
+
+                    _TarjetaDePanel.TipoDeGráfico = _Tarjeta.TipoDeGráfico;
+
+                    _Panel.Tarjetas.Add(_TarjetaDePanel);
+                }
+
+                if (!this.Dashboard.Paneles.Contains(_Panel))
+                    this.Dashboard.Paneles.Add(_Panel);
+            }
+        }
+
+        private void PrepararIndicadoresDinámicos()
+        {
+            this.QuitarIndicadoresDinámicos();
+
+            if (this.Tablero.TipoEntidad == TipoEntidad.Registro)
+            {
+                this.AgregarIndicadoresDinámicos();
+
+                this.PrepararDashboard();
+            }
+
+            this.ActualizarPresentación = true;
+        }
+
+        protected override void PreparandoAtributosDinámicos()
+        {
+            base.PreparandoAtributosDinámicos();
+
+            //this.PrepararIndicadoresDinámicos();
+        }
+        #endregion
+
+        #region RestringiendoAtributo
+        private void RestringiendoIndicadoresDinámicos(Atributo Atributo)
+        {
+            if (this.Atributos["Tablero"].Valor.EsDiferenteEntreActualConOriginal)
+                this.PrepararIndicadoresDinámicos();
+
+            //if (this.Carpetas.Count > 0)
+            //    Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.Automático;
+
+            //else Atributo.Accesibilidad.Visibilidad = TipoAccesibilidad.No;
+        }
+
+        protected override void RestringiendoAtributo(Atributo Atributo)
+        {
+            base.RestringiendoAtributo(Atributo);
+
+            if (Atributo.Identidad.Clave == "IndicadoresDinámicos")
+                this.RestringiendoIndicadoresDinámicos(Atributo);
+        }
+        #endregion
+        #endregion
+    }
+}
